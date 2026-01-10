@@ -3,12 +3,20 @@
 @using CryptoMonitor.Services
 @inject ICryptoService CryptoService
 @inject ITrendService TrendService
+@inject ILanguageService Lang
+@implements IDisposable
 @rendermode InteractiveServer
 
 <div class="container fade-in">
-    <header>
-        <h1>Market Sentinel</h1>
-        <p class="subtitle">Monitoramento de Top 100 Cryptos e Inteligência Macro</p>
+    <header class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1>@Lang.T("AppTitle")</h1>
+            <p class="subtitle">@Lang.T("AppSubtitle")</p>
+        </div>
+        <div class="lang-switcher">
+            <button class="btn btn-outline-info btn-sm @(Lang.CurrentLanguage == Language.ENG ? "active" : "")" @onclick='() => SetLanguage(Language.ENG)'>ENG</button>
+            <button class="btn btn-outline-info btn-sm @(Lang.CurrentLanguage == Language.PT ? "active" : "")" @onclick='() => SetLanguage(Language.PT)'>PT</button>
+        </div>
     </header>
 
     @if (macroInsight != null)
@@ -16,15 +24,15 @@
         <section class="glass-card mb-5">
             <div class="row">
                 <div class="col-md-8">
-                    <h3 class="text-accent mb-3"><i class="bi bi-globe"></i> Panorama Macro Mundial</h3>
+                    <h3 class="text-accent mb-3"><i class="bi bi-globe"></i> @Lang.T("MacroTitle")</h3>
                     <p>@macroInsight.GlobalContext</p>
                     <div class="mt-3">
-                        <span class="badge bg-primary me-2">Resumo Diário</span>
+                        <span class="badge bg-primary me-2">@Lang.T("DailyOutlook")</span>
                         <small>@macroInsight.DailyOutlook</small>
                     </div>
                 </div>
                 <div class="col-md-4 border-start border-secondary ps-4">
-                    <h4 class="mb-3">Indicadores Chave</h4>
+                    <h4 class="mb-3">@Lang.T("KeyIndicators")</h4>
                     @foreach (var metric in macroInsight.KeyMetrics)
                     {
                         <div class="d-flex justify-content-between mb-2">
@@ -46,7 +54,7 @@
                     <div class="glass-card h-100">
                         <div class="d-flex justify-content-between">
                             <h5 class="fw-bold">@trend.Title</h5>
-                            <span class="badge @(trend.Impact == "Positive" ? "bg-success" : trend.Impact == "Negative" ? "bg-danger" : "bg-secondary")">
+                            <span class="badge @(trend.Impact == Lang.T("ImpactPositive") ? "bg-success" : trend.Impact == Lang.T("ImpactNegative") ? "bg-danger" : "bg-secondary")">
                                 @trend.Impact
                             </span>
                         </div>
@@ -64,9 +72,9 @@
     </section>
 
     <div class="search-container">
-        <input type="text" class="glass-input" placeholder="Filtrar por nome ou símbolo..." @bind="searchTerm" @bind:event="oninput" />
+        <input type="text" class="glass-input" placeholder="@Lang.T("FilterPlaceholder")" @bind="searchTerm" @bind:event="oninput" />
         <button class="refresh-btn" @onclick="LoadData">
-            <i class="bi bi-arrow-clockwise"></i> Atualizar Dados
+            <i class="bi bi-arrow-clockwise"></i> @Lang.T("UpdateBtn")
         </button>
     </div>
 
@@ -74,7 +82,7 @@
     {
         <div class="text-center py-5">
             <div class="spinner-border text-info" role="status"></div>
-            <p class="mt-3">Sincronizando com o mercado...</p>
+            <p class="mt-3">@Lang.T("Syncing")</p>
         </div>
     }
     else
@@ -83,13 +91,11 @@
             <table class="glass-list">
                 <thead>
                     <tr>
-                        <th @onclick='() => Sort("rank")' style="cursor:pointer">#</th>
-                        <th @onclick='() => Sort("name")' style="cursor:pointer">Ativo</th>
-                        <th @onclick='() => Sort("price")' style="cursor:pointer">Preço (USD)</th>
-                        <th @onclick='() => Sort("1h")' style="cursor:pointer">1h</th>
-                        <th @onclick='() => Sort("24h")' style="cursor:pointer">24h</th>
-                        <th @onclick='() => Sort("7d")' style="cursor:pointer">7d</th>
-                        <th @onclick='() => Sort("cap")' style="cursor:pointer">Market Cap</th>
+                        <th @onclick='() => Sort("rank")' style="cursor:pointer">@Lang.T("Rank")</th>
+                        <th @onclick='() => Sort("name")' style="cursor:pointer">@Lang.T("Asset")</th>
+                        <th @onclick='() => Sort("price")' style="cursor:pointer">@Lang.T("Price")</th>
+                        <th @onclick='() => Sort("24h")' style="cursor:pointer">@Lang.T("24h")</th>
+                        <th @onclick='() => Sort("cap")' style="cursor:pointer">@Lang.T("MarketCap")</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -107,9 +113,7 @@
                                 </div>
                             </td>
                             <td class="fw-bold">@asset.CurrentPrice.ToString("C2")</td>
-                            <td class="@GetPriceClass(asset.PriceChange1h)">@(asset.PriceChange1h?.ToString("N2") ?? "0.00")%</td>
                             <td class="@GetPriceClass(asset.PriceChange24h)">@asset.PriceChange24h.ToString("N2")%</td>
-                            <td class="@GetPriceClass(asset.PriceChange7d)">@(asset.PriceChange7d?.ToString("N2") ?? "0.00")%</td>
                             <td class="text-secondary">@asset.MarketCap.ToString("N0")</td>
                         </tr>
                     }
@@ -130,7 +134,24 @@
 
     protected override async Task OnInitializedAsync()
     {
+        Lang.OnLanguageChanged += HandleLanguageChanged;
         await LoadData();
+    }
+
+    private async void HandleLanguageChanged()
+    {
+        await LoadData();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        Lang.OnLanguageChanged -= HandleLanguageChanged;
+    }
+
+    private void SetLanguage(Language language)
+    {
+        Lang.SetLanguage(language);
     }
 
     private async Task LoadData()
@@ -156,7 +177,7 @@
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
                 result = result.Where(a => a.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) || 
-                                          a.Symbol.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+                                           a.Symbol.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
             }
 
             return sortAscending ? ApplySort(result) : ApplySort(result).Reverse();
@@ -201,4 +222,14 @@
     .badge.bg-success { background-color: var(--up-color) !important; color: black !important; }
     .badge.bg-danger { background-color: var(--down-color) !important; }
     .mb-5 { margin-bottom: 3rem !important; }
+
+    .lang-switcher .btn {
+        margin-left: 5px;
+        border-color: rgba(0, 255, 204, 0.3);
+        color: var(--accent-color);
+    }
+    .lang-switcher .btn.active {
+        background-color: var(--accent-color);
+        color: black;
+    }
 </style>

@@ -10,47 +10,53 @@ public interface ITrendService
 
 public class TrendService : ITrendService
 {
-    // Simulation of an AI-driven or News-aggregated data source
+    private readonly ILanguageService _lang;
+
+    public TrendService(ILanguageService lang)
+    {
+        _lang = lang;
+    }
+
     public async Task<MacroInsight> GetMacroInsightsAsync()
     {
-        await Task.Delay(100); // Simulate network
+        await Task.Delay(50); // Simulate network
         return new MacroInsight
         {
-            GlobalContext = "Os mercados globais observam de perto os dados de inflação dos EUA e as movimentações do FED. A liquidez global mostra sinais de recuperação, favorecendo ativos de risco.",
-            DailyOutlook = "Tendência de acumulação para o Bitcoin após suporte em níveis chave. O interesse institucional em ETFs continua sendo o principal driver de volume.",
+            GlobalContext = _lang.T("MacroDescription"),
+            DailyOutlook = _lang.T("DailyOutlookDesc"),
             KeyMetrics = new Dictionary<string, string>
             {
-                { "DXY (Dólar Index)", "102.5 (Estável)" },
-                { "SPX (S&P 500)", "Subindo" },
-                { "Dominância BTC", "52.4%" }
+                { _lang.T("Indicator1"), _lang.T("Indicator1Val") },
+                { _lang.T("Indicator2"), _lang.T("Indicator2Val") },
+                { _lang.T("Indicator3"), _lang.T("Indicator3Val") }
             }
         };
     }
 
     public async Task<List<MarketTrend>> GetCurrentTrendsAsync()
     {
-        await Task.Delay(100);
+        await Task.Delay(50);
         return new List<MarketTrend>
         {
             new MarketTrend 
             { 
-                Title = "Halving Impact", 
-                Summary = "A redução na emissão de novos Bitcoins começa a pressionar a oferta nas exchanges.", 
-                Impact = "Positive",
+                Title = _lang.T("Trend1Title"), 
+                Summary = _lang.T("Trend1Summary"), 
+                Impact = _lang.T("ImpactPositive"),
                 Tags = new List<string> { "BTC", "On-chain" }
             },
             new MarketTrend 
             { 
-                Title = "Regulação Europeia (MiCA)", 
-                Summary = "Novas regras trazem clareza institucional, facilitando a entrada de grandes fundos no mercado cripto.", 
-                Impact = "Neutral",
+                Title = _lang.T("Trend2Title"), 
+                Summary = _lang.T("Trend2Summary"), 
+                Impact = _lang.T("ImpactNeutral"),
                 Tags = new List<string> { "Regulação", "Europa" }
             },
             new MarketTrend 
             { 
-                Title = "Expansão de Layer 2", 
-                Summary = "Ethereum L2s como Arbitrum e Base atingem recordes de transações diárias.", 
-                Impact = "Positive",
+                Title = _lang.T("Trend3Title"), 
+                Summary = _lang.T("Trend3Summary"), 
+                Impact = _lang.T("ImpactPositive"),
                 Tags = new List<string> { "ETH", "L2" }
             }
         };

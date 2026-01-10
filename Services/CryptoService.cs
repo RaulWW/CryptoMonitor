@@ -22,13 +22,16 @@ public class CryptoService : ICryptoService
     {
         try
         {
-            var url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=1h,24h,7d";
-            var result = await _httpClient.GetFromJsonAsync<List<CryptoAsset>>(url);
-            return result ?? new List<CryptoAsset>();
+            var url = "https://api.coincap.io/v2/assets?limit=100";
+            var result = await _httpClient.GetFromJsonAsync<CoinCapResponse>(url);
+            
+            if (result?.Data == null) return new List<CryptoAsset>();
+
+            return result.Data.Select(CryptoAsset.FromCoinCap).ToList();
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error fetching crypto data: {ex.Message}");
+            Console.WriteLine($"Error fetching crypto data from CoinCap: {ex.Message}");
             return new List<CryptoAsset>();
         }
     }
