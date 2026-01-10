@@ -1,0 +1,8 @@
+C:\Users\Raul\.gemini\antigravity\scratch\raulww\CryptoMonitor\obj\Debug\net10.0\EmbeddedAttribute.cs
+C:\Users\Raul\.gemini\antigravity\scratch\raulww\CryptoMonitor\obj\Debug\net10.0\ValidatableTypeAttribute.cs
+C:\Users\Raul\.gemini\antigravity\scratch\raulww\CryptoMonitor\obj\Debug\net10.0\rpswa.dswa.cache.json
+C:\Users\Raul\.gemini\antigravity\scratch\raulww\CryptoMonitor\obj\Debug\net10.0\CryptoMonitor.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Raul\.gemini\antigravity\scratch\raulww\CryptoMonitor\obj\Debug\net10.0\CryptoMonitor.AssemblyInfoInputs.cache
+C:\Users\Raul\.gemini\antigravity\scratch\raulww\CryptoMonitor\obj\Debug\net10.0\CryptoMonitor.AssemblyInfo.cs
+C:\Users\Raul\.gemini\antigravity\scratch\raulww\CryptoMonitor\obj\Debug\net10.0\CryptoMonitor.csproj.CoreCompileInputs.cache
+C:\Users\Raul\.gemini\antigravity\scratch\raulww\CryptoMonitor\obj\Debug\net10.0\CryptoMonitor.MvcApplicationPartsAssemblyInfo.cache
