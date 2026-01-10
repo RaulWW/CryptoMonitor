@@ -1,0 +1,206 @@
+@page "/"
+@using CryptoMonitor.Models
+@using CryptoMonitor.Services
+@inject ICryptoService CryptoService
+@inject ITrendService TrendService
+@rendermode InteractiveServer
+
+<div class="container fade-in">
+    <header>
+        <h1>Market Sentinel</h1>
+        <p class="subtitle">Monitoramento de Top 100 Cryptos e Inteligência Macro</p>
+    </header>
+
+    @if (macroInsight != null)
+    {
+        <section class="glass-card mb-5">
+            <div class="row">
+                <div class="col-md-8">
+                    <h3 class="text-accent mb-3"><i class="bi bi-globe"></i> Panorama Macro Mundial</h3>
+                    <p>@macroInsight.GlobalContext</p>
+                    <div class="mt-3">
+                        <span class="badge bg-primary me-2">Resumo Diário</span>
+                        <small>@macroInsight.DailyOutlook</small>
+                    </div>
+                </div>
+                <div class="col-md-4 border-start border-secondary ps-4">
+                    <h4 class="mb-3">Indicadores Chave</h4>
+                    @foreach (var metric in macroInsight.KeyMetrics)
+                    {
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-secondary">@metric.Key</span>
+                            <span class="fw-bold">@metric.Value</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </section>
+    }
+
+    <section class="trends-row row mb-5">
+        @if (trends != null)
+        {
+            @foreach (var trend in trends)
+            {
+                <div class="col-md-4 mb-3">
+                    <div class="glass-card h-100">
+                        <div class="d-flex justify-content-between">
+                            <h5 class="fw-bold">@trend.Title</h5>
+                            <span class="badge @(trend.Impact == "Positive" ? "bg-success" : trend.Impact == "Negative" ? "bg-danger" : "bg-secondary")">
+                                @trend.Impact
+                            </span>
+                        </div>
+                        <p class="small text-secondary mt-2">@trend.Summary</p>
+                        <div class="mt-2">
+                            @foreach (var tag in trend.Tags)
+                            {
+                                <span class="badge border border-info text-info me-1" style="font-size: 0.7rem;">#@tag</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </section>
+
+    <div class="search-container">
+        <input type="text" class="glass-input" placeholder="Filtrar por nome ou símbolo..." @bind="searchTerm" @bind:event="oninput" />
+        <button class="refresh-btn" @onclick="LoadData">
+            <i class="bi bi-arrow-clockwise"></i> Atualizar Dados
+        </button>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-info" role="status"></div>
+            <p class="mt-3">Sincronizando com o mercado...</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="glass-list">
+                <thead>
+                    <tr>
+                        <th @onclick='() => Sort("rank")' style="cursor:pointer">#</th>
+                        <th @onclick='() => Sort("name")' style="cursor:pointer">Ativo</th>
+                        <th @onclick='() => Sort("price")' style="cursor:pointer">Preço (USD)</th>
+                        <th @onclick='() => Sort("1h")' style="cursor:pointer">1h</th>
+                        <th @onclick='() => Sort("24h")' style="cursor:pointer">24h</th>
+                        <th @onclick='() => Sort("7d")' style="cursor:pointer">7d</th>
+                        <th @onclick='() => Sort("cap")' style="cursor:pointer">Market Cap</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var asset in FilteredAssets)
+                    {
+                        <tr>
+                            <td>@asset.MarketCapRank</td>
+                            <td>
+                                <div class="crypto-name">
+                                    <img src="@asset.Image" class="crypto-logo" alt="@asset.Name" />
+                                    <div>
+                                        <div class="fw-bold">@asset.Name</div>
+                                        <div class="small text-secondary">@asset.Symbol.ToUpper()</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="fw-bold">@asset.CurrentPrice.ToString("C2")</td>
+                            <td class="@GetPriceClass(asset.PriceChange1h)">@(asset.PriceChange1h?.ToString("N2") ?? "0.00")%</td>
+                            <td class="@GetPriceClass(asset.PriceChange24h)">@asset.PriceChange24h.ToString("N2")%</td>
+                            <td class="@GetPriceClass(asset.PriceChange7d)">@(asset.PriceChange7d?.ToString("N2") ?? "0.00")%</td>
+                            <td class="text-secondary">@asset.MarketCap.ToString("N0")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    private List<CryptoAsset> assets = new();
+    private List<MarketTrend> trends = new();
+    private MacroInsight macroInsight;
+    private string searchTerm = "";
+    private bool isLoading = true;
+    private string sortColumn = "rank";
+    private bool sortAscending = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        isLoading = true;
+        var fetchAssets = CryptoService.GetTop100AssetsAsync();
+        var fetchTrends = TrendService.GetCurrentTrendsAsync();
+        var fetchMacro = TrendService.GetMacroInsightsAsync();
+
+        await Task.WhenAll(fetchAssets, fetchTrends, fetchMacro);
+
+        assets = await fetchAssets;
+        trends = await fetchTrends;
+        macroInsight = await fetchMacro;
+        isLoading = false;
+    }
+
+    private IEnumerable<CryptoAsset> FilteredAssets
+    {
+        get
+        {
+            var result = assets.AsEnumerable();
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                result = result.Where(a => a.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) || 
+                                          a.Symbol.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+            }
+
+            return sortAscending ? ApplySort(result) : ApplySort(result).Reverse();
+        }
+    }
+
+    private IEnumerable<CryptoAsset> ApplySort(IEnumerable<CryptoAsset> query)
+    {
+        return sortColumn switch
+        {
+            "rank" => query.OrderBy(a => a.MarketCapRank),
+            "name" => query.OrderBy(a => a.Name),
+            "price" => query.OrderBy(a => a.CurrentPrice),
+            "1h" => query.OrderBy(a => a.PriceChange1h),
+            "24h" => query.OrderBy(a => a.PriceChange24h),
+            "7d" => query.OrderBy(a => a.PriceChange7d),
+            "cap" => query.OrderBy(a => a.MarketCap),
+            _ => query.OrderBy(a => a.MarketCapRank)
+        };
+    }
+
+    private void Sort(string column)
+    {
+        if (sortColumn == column)
+        {
+            sortAscending = !sortAscending;
+        }
+        else
+        {
+            sortColumn = column;
+            sortAscending = true;
+        }
+    }
+
+    private string GetPriceClass(double? change) => change >= 0 ? "price-up" : "price-down";
+
+    private string GetPriceClass(double change) => change >= 0 ? "price-up" : "price-down";
+}
+
+<style>
+    .text-accent { color: var(--accent-color); }
+    .fade-in { animation: fadeIn 0.8s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .badge.bg-success { background-color: var(--up-color) !important; color: black !important; }
+    .badge.bg-danger { background-color: var(--down-color) !important; }
+    .mb-5 { margin-bottom: 3rem !important; }
+</style>

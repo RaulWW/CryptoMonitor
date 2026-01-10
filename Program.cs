@@ -1,10 +1,14 @@
 using CryptoMonitor.Components;
+using CryptoMonitor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddHttpClient<ICryptoService, CryptoService>();
+builder.Services.AddScoped<ITrendService, TrendService>();
 
 var app = builder.Build();
 
