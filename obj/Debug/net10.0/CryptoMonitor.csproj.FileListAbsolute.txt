@@ -6,12 +6,5 @@ C:\Users\Raul\.gemini\antigravity\scratch\raulww\CryptoMonitor\obj\Debug\net10.0
 C:\Users\Raul\.gemini\antigravity\scratch\raulww\CryptoMonitor\obj\Debug\net10.0\CryptoMonitor.AssemblyInfo.cs
 C:\Users\Raul\.gemini\antigravity\scratch\raulww\CryptoMonitor\obj\Debug\net10.0\CryptoMonitor.csproj.CoreCompileInputs.cache
 C:\Users\Raul\.gemini\antigravity\scratch\raulww\CryptoMonitor\obj\Debug\net10.0\CryptoMonitor.MvcApplicationPartsAssemblyInfo.cache
-C:\Users\Raul\Desktop\Github\raulww\obj\Debug\net10.0\EmbeddedAttribute.cs
-C:\Users\Raul\Desktop\Github\raulww\obj\Debug\net10.0\ValidatableTypeAttribute.cs
-C:\Users\Raul\Desktop\Github\raulww\obj\Debug\net10.0\rpswa.dswa.cache.json
-C:\Users\Raul\Desktop\Github\raulww\obj\Debug\net10.0\CryptoMonitor.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\Raul\Desktop\Github\raulww\obj\Debug\net10.0\CryptoMonitor.AssemblyInfoInputs.cache
-C:\Users\Raul\Desktop\Github\raulww\obj\Debug\net10.0\CryptoMonitor.AssemblyInfo.cs
-C:\Users\Raul\Desktop\Github\raulww\obj\Debug\net10.0\CryptoMonitor.csproj.CoreCompileInputs.cache
-C:\Users\Raul\Desktop\Github\raulww\obj\Debug\net10.0\CryptoMonitor.MvcApplicationPartsAssemblyInfo.cache
-C:\Users\Raul\Desktop\Github\raulww\obj\Debug\net10.0\CryptoMonitor.sourcelink.json
+C:\Users\Raul\Desktop\Github\raulww\bin\Debug\net10.0\CryptoMonitor.exe
+C:\Users\Raul\Desktop\Github\raulww\bin\Debug\net10.0\CryptoMonitor.dll
