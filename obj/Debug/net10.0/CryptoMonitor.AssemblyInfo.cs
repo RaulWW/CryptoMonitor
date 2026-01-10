@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CryptoMonitor")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c67fb6e753728fd7a9bc2b97782d2f3d7a1b75a8")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a5656b542d18d58f763b1c26966a87584fe863a1")]
 [assembly: System.Reflection.AssemblyProductAttribute("CryptoMonitor")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CryptoMonitor")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

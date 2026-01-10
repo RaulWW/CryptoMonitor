@@ -51,11 +51,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Raul\\.gemini\\antigravity\\scratch\\raulww\\CryptoMonitor\\CryptoMonitor.csproj",
+      "projectUniqueName": "C:\\Users\\Raul\\Desktop\\Github\\raulww\\CryptoMonitor.csproj",
       "projectName": "CryptoMonitor",
-      "projectPath": "C:\\Users\\Raul\\.gemini\\antigravity\\scratch\\raulww\\CryptoMonitor\\CryptoMonitor.csproj",
+      "projectPath": "C:\\Users\\Raul\\Desktop\\Github\\raulww\\CryptoMonitor.csproj",
       "packagesPath": "C:\\Users\\Raul\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Raul\\.gemini\\antigravity\\scratch\\raulww\\CryptoMonitor\\obj\\",
+      "outputPath": "C:\\Users\\Raul\\Desktop\\Github\\raulww\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
