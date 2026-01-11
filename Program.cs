@@ -8,7 +8,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddHttpClient<ICryptoService, CryptoService>();
-builder.Services.AddScoped<ITrendService, TrendService>();
+builder.Services.AddHttpClient<ITrendService, TrendService>();
 builder.Services.AddScoped<ILanguageService, LanguageService>();
 
 var app = builder.Build();

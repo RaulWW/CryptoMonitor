@@ -13,5 +13,7 @@ public class MacroInsight
 {
     public string GlobalContext { get; set; } = string.Empty;
     public string DailyOutlook { get; set; } = string.Empty;
-    public Dictionary<string, string> KeyMetrics { get; set; } = new(); // e.g. "Fed Interest Rate": "5.5%"
+    public Dictionary<string, string> KeyMetrics { get; set; } = new();
+    public string FearAndGreedValue { get; set; } = "50";
+    public string FearAndGreedLabel { get; set; } = "Neutral";
 }
