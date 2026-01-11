@@ -9,6 +9,7 @@ public interface ILanguageService
 {
     Language CurrentLanguage { get; }
     void SetLanguage(Language language);
+    void SetLanguageByCountry(string countryCode);
     string T(string key);
     event Action OnLanguageChanged;
 }
@@ -116,5 +117,11 @@ public class LanguageService : ILanguageService
             return translation;
         }
         return key;
+    }
+
+    public void SetLanguageByCountry(string countryCode)
+    {
+        var language = countryCode is "BR" or "PT" ? Language.PT : Language.ENG;
+        SetLanguage(language);
     }
 }

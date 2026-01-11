@@ -69,8 +69,8 @@ public class CryptoAsset
             MarketCap = quote.MarketCap,
             PriceChange24h = quote.PercentChange24h,
             Image = $"https://static.coinpaprika.com/coin/{ticker.Id}/logo.png",
-            PriceChange1h = null,
-            PriceChange7d = null
+            PriceChange1h = quote.PercentChange1h,
+            PriceChange7d = quote.PercentChange7d
         };
     }
 }
@@ -118,5 +118,7 @@ public class CoinPaprikaQuote
 {
     [JsonPropertyName("price")] public decimal Price { get; set; }
     [JsonPropertyName("market_cap")] public long MarketCap { get; set; }
+    [JsonPropertyName("percent_change_1h")] public double PercentChange1h { get; set; }
     [JsonPropertyName("percent_change_24h")] public double PercentChange24h { get; set; }
+    [JsonPropertyName("percent_change_7d")] public double PercentChange7d { get; set; }
 }

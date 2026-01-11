@@ -9,7 +9,7 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddHttpClient<ICryptoService, CryptoService>();
 builder.Services.AddScoped<ITrendService, TrendService>();
-builder.Services.AddSingleton<ILanguageService, LanguageService>();
+builder.Services.AddScoped<ILanguageService, LanguageService>();
 
 var app = builder.Build();
 

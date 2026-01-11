@@ -4,6 +4,7 @@
 @inject ICryptoService CryptoService
 @inject ITrendService TrendService
 @inject ILanguageService Lang
+@inject IJSRuntime JS
 @implements IDisposable
 @rendermode InteractiveServer
 
@@ -73,6 +74,25 @@
     {
         Lang.OnLanguageChanged += HandleLanguageChanged;
         await LoadData();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                var countryCode = await JS.InvokeAsync<string>("getCountryCode");
+                if (!string.IsNullOrEmpty(countryCode))
+                {
+                    Lang.SetLanguageByCountry(countryCode);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[DEBUG] Auto-language detection failed: {ex.Message}");
+            }
+        }
     }
 
     private async void HandleLanguageChanged()
