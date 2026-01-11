@@ -202,38 +202,33 @@ body {
   .crypto-name div .small { font-size: 0.7rem; }
 }
 
-/* Modern Reconnect Modal */
-#components-reconnect-modal {
-  background: rgba(20, 20, 20, 0.95) !important;
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--accent-color) !important;
-  color: white !important;
-  border-radius: 20px !important;
-  box-shadow: 0 0 30px rgba(0, 210, 255, 0.2) !important;
-}
-
 #components-reconnect-modal button {
   background: var(--accent-color) !important;
-  color: black !important;
+  color: #000 !important;
   border-radius: 30px !important;
   font-weight: bold !important;
   border: none !important;
   padding: 8px 25px !important;
 }
-h1 {
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 10px;
-  background: linear-gradient(to right, #ffffff, var(--accent-color));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+
+/* Framework Reconnect Modal Override */
+#components-reconnect-modal, 
+#components-reconnect-modal dialog,
+.components-reconnect-container {
+  background: rgba(20, 20, 20, 0.95) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid var(--accent-color) !important;
+  color: white !important;
+  border-radius: 20px !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8) !important;
+  padding: 30px !important;
 }
 
-.subtitle {
-  color: var(--text-secondary);
-  margin-bottom: 40px;
+#components-reconnect-modal p {
+  color: white !important;
+  margin-bottom: 15px !important;
 }
+
 
 .table-loading-overlay {
   position: absolute;
@@ -251,7 +246,6 @@ h1 {
 
 .opacity-50 {
   opacity: 0.5;
-  pointer-events: none;
 }
 
 .fng-value {

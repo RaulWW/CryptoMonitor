@@ -107,16 +107,26 @@
     private async Task LoadData()
     {
         isLoading = true;
-        var fetchAssets = CryptoService.GetTop100AssetsAsync();
-        var fetchTrends = TrendService.GetCurrentTrendsAsync();
-        var fetchMacro = TrendService.GetMacroInsightsAsync();
+        try
+        {
+            var fetchAssets = CryptoService.GetTop100AssetsAsync();
+            var fetchTrends = TrendService.GetCurrentTrendsAsync();
+            var fetchMacro = TrendService.GetMacroInsightsAsync();
 
-        await Task.WhenAll(fetchAssets, fetchTrends, fetchMacro);
+            await Task.WhenAll(fetchAssets, fetchTrends, fetchMacro);
 
-        assets = await fetchAssets;
-        trends = await fetchTrends;
-        macroInsight = await fetchMacro;
-        isLoading = false;
+            assets = await fetchAssets;
+            trends = await fetchTrends;
+            macroInsight = await fetchMacro;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[ERROR] Dashboard LoadData: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
 }
 
