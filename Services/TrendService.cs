@@ -29,6 +29,10 @@ public class TrendService : ITrendService
     { 
         [JsonPropertyName("market_cap_percentage")] public Dictionary<string, double> CapPercentages { get; set; } = new();
         [JsonPropertyName("total_market_cap")] public Dictionary<string, double> TotalCap { get; set; } = new();
+        [JsonPropertyName("total_volume")] public Dictionary<string, double>? TotalVolume { get; set; }
+        [JsonPropertyName("active_cryptocurrencies")] public int ActiveCryptocurrencies { get; set; }
+        [JsonPropertyName("defi_market_cap")] public double DeFiMarketCap { get; set; }
+        [JsonPropertyName("market_cap_change_percentage_24h_usd")] public double MarketCapChangePercentage24hUsd { get; set; }
     }
 
     public async Task<MacroInsight> GetMacroInsightsAsync()
@@ -58,14 +62,53 @@ public class TrendService : ITrendService
             var global = await _http.GetFromJsonAsync<GlobalDataResponse>("https://api.coingecko.com/api/v3/global");
             if (global?.Data != null)
             {
+                // Dominance metrics
                 if (global.Data.CapPercentages.TryGetValue("btc", out var btcDom))
                     insight.KeyMetrics["BTC Dominance"] = $"{btcDom:N1}%";
                 
                 if (global.Data.CapPercentages.TryGetValue("eth", out var ethDom))
                     insight.KeyMetrics["ETH Dominance"] = $"{ethDom:N1}%";
 
+                // Total Market Cap
                 if (global.Data.TotalCap.TryGetValue("usd", out var totalCap))
                     insight.KeyMetrics["Total Market Cap"] = $"${(totalCap / 1e12):N2}T";
+
+                // 24h Volume
+                if (global.Data.TotalVolume?.TryGetValue("usd", out var totalVol24h) == true)
+                    insight.KeyMetrics["24h Volume"] = $"${(totalVol24h / 1e9):N1}B";
+
+                // Active Cryptocurrencies
+                if (global.Data.ActiveCryptocurrencies > 0)
+                    insight.KeyMetrics["Active Cryptos"] = $"{global.Data.ActiveCryptocurrencies:N0}";
+
+                // DeFi Market Cap
+                if (global.Data.DeFiMarketCap > 0)
+                    insight.KeyMetrics["DeFi Market Cap"] = $"${(global.Data.DeFiMarketCap / 1e9):N1}B";
+
+                // Stablecoin dominance (USDT + USDC + DAI, etc.)
+                var stableDom = 0.0;
+                foreach (var stableSymbol in new[] { "usdt", "usdc", "busd", "dai" })
+                {
+                    if (global.Data.CapPercentages.TryGetValue(stableSymbol, out var dom))
+                        stableDom += dom;
+                }
+                if (stableDom > 0)
+                    insight.KeyMetrics["Stablecoin Dom."] = $"{stableDom:N1}%";
+
+                // Market change percentage (if available)
+                if (global.Data.MarketCapChangePercentage24hUsd != 0)
+                {
+                    var change = global.Data.MarketCapChangePercentage24hUsd;
+                    insight.KeyMetrics["24h Market Change"] = $"{(change >= 0 ? "+" : "")}{change:N2}%";
+                }
+
+                // Altcoin season indicator (simple heuristic: if BTC dominance < 40%, we're in altseason)
+                if (btcDom < 40)
+                    insight.KeyMetrics["Market Phase"] = "🚀 Altcoin Season";
+                else if (btcDom > 60)
+                    insight.KeyMetrics["Market Phase"] = "₿ Bitcoin Season";
+                else
+                    insight.KeyMetrics["Market Phase"] = "⚖️ Balanced";
             }
         }
         catch (Exception ex) { Console.WriteLine($"[ERROR] Global API: {ex.Message}"); }

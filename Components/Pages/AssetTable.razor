@@ -38,7 +38,7 @@
                                 </div>
                             </div>
                         </td>
-                        <td class="fw-bold">@asset.CurrentPrice.ToString("C2", CultureInfo.CreateSpecificCulture("en-US"))</td>
+                        <td class="fw-bold">@FormatPrice(asset.CurrentPrice)</td>
                         <td class="@GetPriceClass(asset.PriceChange1h)">
                             <div>@(asset.PriceChange1h?.ToString("N2") ?? "---")%</div>
                             <div class="small opacity-75">@FormatAbsoluteChange(asset.CurrentPrice, asset.PriceChange1h)</div>
@@ -139,6 +139,17 @@
         return sortAscending ? "▲" : "▼";
     }
 
+    private string FormatPrice(decimal price)
+    {
+        // Dynamic formatting based on price range
+        if (price < 0.01m)
+            return price.ToString("$0.########", CultureInfo.CreateSpecificCulture("en-US")); // Up to 8 decimals for very small prices
+        else if (price < 1m)
+            return price.ToString("$0.####", CultureInfo.CreateSpecificCulture("en-US")); // Up to 4 decimals for prices under $1
+        else
+            return price.ToString("C2", CultureInfo.CreateSpecificCulture("en-US")); // 2 decimals for prices >= $1
+    }
+
     private string FormatAbsoluteChange(decimal currentPrice, double? percentageChange)
     {
         if (percentageChange == null || Math.Abs(percentageChange.Value + 100.0) < 0.0001) return "";
@@ -149,6 +160,12 @@
         decimal oldPrice = currentPrice / (1 + pc);
         decimal diff = currentPrice - oldPrice;
         
-        return (diff >= 0 ? "+" : "") + diff.ToString("C2", CultureInfo.CreateSpecificCulture("en-US"));
+        // Use same dynamic formatting as price
+        if (Math.Abs(diff) < 0.01m)
+            return (diff >= 0 ? "+" : "") + diff.ToString("$0.########", CultureInfo.CreateSpecificCulture("en-US"));
+        else if (Math.Abs(diff) < 1m)
+            return (diff >= 0 ? "+" : "") + diff.ToString("$0.####", CultureInfo.CreateSpecificCulture("en-US"));
+        else
+            return (diff >= 0 ? "+" : "") + diff.ToString("C2", CultureInfo.CreateSpecificCulture("en-US"));
     }
 }
