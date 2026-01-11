@@ -72,7 +72,15 @@
     </section>
 
     <div class="search-container">
-        <input type="text" class="glass-input" placeholder="@Lang.T("FilterPlaceholder")" @bind="searchTerm" @bind:event="oninput" />
+        <div class="d-flex align-items-center">
+            <input type="text" class="glass-input" placeholder="@Lang.T("FilterPlaceholder")" @bind="searchTerm" @bind:event="oninput" />
+            @if (assets.Any())
+            {
+                <span class="ms-3 badge border border-info text-info">
+                    @assets.Count @Lang.T("Asset")s (@assets.FirstOrDefault()?.Provider)
+                </span>
+            }
+        </div>
         <button class="refresh-btn" @onclick="LoadData">
             <i class="bi bi-arrow-clockwise"></i> @Lang.T("UpdateBtn")
         </button>
@@ -83,6 +91,17 @@
         <div class="text-center py-5">
             <div class="spinner-border text-info" role="status"></div>
             <p class="mt-3">@Lang.T("Syncing")</p>
+        </div>
+    }
+    else if (!FilteredAssets.Any())
+    {
+        <div class="text-center py-5 glass-card">
+            <i class="bi bi-exclamation-triangle text-warning display-4"></i>
+            <h3 class="mt-3">@Lang.T("NoDataTitle")</h3>
+            <p class="text-secondary">@Lang.T("NoDataDesc")</p>
+            <button class="btn btn-outline-info mt-3" @onclick="LoadData">
+                <i class="bi bi-arrow-clockwise"></i> @Lang.T("RetryBtn")
+            </button>
         </div>
     }
     else
@@ -101,21 +120,28 @@
                 <tbody>
                     @foreach (var asset in FilteredAssets)
                     {
-                        <tr>
-                            <td>@asset.MarketCapRank</td>
-                            <td>
-                                <div class="crypto-name">
-                                    <img src="@asset.Image" class="crypto-logo" alt="@asset.Name" />
-                                    <div>
-                                        <div class="fw-bold">@asset.Name</div>
-                                        <div class="small text-secondary">@asset.Symbol.ToUpper()</div>
+                        @try
+                        {
+                            <tr>
+                                <td>@asset.MarketCapRank</td>
+                                <td>
+                                    <div class="crypto-name">
+                                        <img src="@asset.Image" class="crypto-logo" alt="@asset.Name" onerror="this.src='favicon.png'" />
+                                        <div>
+                                            <div class="fw-bold">@asset.Name</div>
+                                            <div class="small text-secondary">@asset.Symbol.ToUpper()</div>
+                                        </div>
                                     </div>
-                                </div>
-                            </td>
-                            <td class="fw-bold">@asset.CurrentPrice.ToString("C2")</td>
-                            <td class="@GetPriceClass(asset.PriceChange24h)">@asset.PriceChange24h.ToString("N2")%</td>
-                            <td class="text-secondary">@asset.MarketCap.ToString("N0")</td>
-                        </tr>
+                                </td>
+                                <td class="fw-bold">@asset.CurrentPrice.ToString("C2")</td>
+                                <td class="@GetPriceClass(asset.PriceChange24h)">@asset.PriceChange24h.ToString("N2")%</td>
+                                <td class="text-secondary">@asset.MarketCap.ToString("N0")</td>
+                            </tr>
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"[ERROR] Error rendering asset: {ex.Message}");
+                        }
                     }
                 </tbody>
             </table>

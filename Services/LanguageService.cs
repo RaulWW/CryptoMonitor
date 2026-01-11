@@ -54,7 +54,10 @@ public class LanguageService : ILanguageService
             ["Indicator3"] = "BTC Dominance",
             ["Indicator1Val"] = "102.5 (Stable)",
             ["Indicator2Val"] = "Rising",
-            ["Indicator3Val"] = "52.4%"
+            ["Indicator3Val"] = "52.4%",
+            ["NoDataTitle"] = "No Market Data Available",
+            ["NoDataDesc"] = "We couldn't reach any price providers. This might be a temporary connection issue.",
+            ["RetryBtn"] = "Try Again"
         },
         [Language.PT] = new()
         {
@@ -90,7 +93,10 @@ public class LanguageService : ILanguageService
             ["Indicator3"] = "Dominância BTC",
             ["Indicator1Val"] = "102.5 (Estável)",
             ["Indicator2Val"] = "Subindo",
-            ["Indicator3Val"] = "52.4%"
+            ["Indicator3Val"] = "52.4%",
+            ["NoDataTitle"] = "Sem Dados de Mercado",
+            ["NoDataDesc"] = "Não conseguimos conectar com os provedores de preço. Pode ser uma falha temporária de conexão.",
+            ["RetryBtn"] = "Tentar Novamente"
         }
     };
 

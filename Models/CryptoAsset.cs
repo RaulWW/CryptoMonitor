@@ -34,21 +34,43 @@ public class CryptoAsset
     [JsonPropertyName("price_change_percentage_7d_in_currency")]
     public double? PriceChange7d { get; set; }
 
+    public string Provider { get; set; } = "CoinGecko"; // Default
+
     public static CryptoAsset FromCoinCap(CoinCapAsset cap)
     {
-        var symbol = cap.Symbol.ToLower();
+        var symbol = (cap.Symbol ?? "").ToLower();
         return new CryptoAsset
         {
-            Id = cap.Id,
-            Symbol = cap.Symbol,
-            Name = cap.Name,
+            Id = cap.Id ?? "",
+            Symbol = cap.Symbol ?? "",
+            Name = cap.Name ?? "",
+            Provider = "CoinCap",
             MarketCapRank = int.TryParse(cap.Rank, out var r) ? r : 0,
             CurrentPrice = decimal.TryParse(cap.PriceUsd, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var p) ? p : 0,
-            MarketCap = long.TryParse(cap.MarketCapUsd.Split('.')[0], out var m) ? m : 0,
+            MarketCap = long.TryParse((cap.MarketCapUsd ?? "").Split('.')[0], out var m) ? m : 0,
             PriceChange24h = double.TryParse(cap.ChangePercent24Hr, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out var c) ? c : 0,
             Image = $"https://assets.coincap.io/assets/icons/{symbol}@2x.png",
-            PriceChange1h = null, // Not available in basic assets list
-            PriceChange7d = null  // Not available in basic assets list
+            PriceChange1h = null,
+            PriceChange7d = null
+        };
+    }
+
+    public static CryptoAsset FromCoinPaprika(CoinPaprikaTicker ticker)
+    {
+        var quote = ticker.Quotes != null && ticker.Quotes.TryGetValue("USD", out var q) ? q : new CoinPaprikaQuote();
+        return new CryptoAsset
+        {
+            Id = ticker.Id ?? "",
+            Symbol = ticker.Symbol ?? "",
+            Name = ticker.Name ?? "",
+            Provider = "CoinPaprika",
+            MarketCapRank = ticker.Rank,
+            CurrentPrice = quote.Price,
+            MarketCap = quote.MarketCap,
+            PriceChange24h = quote.PercentChange24h,
+            Image = $"https://static.coinpaprika.com/coin/{ticker.Id}/logo.png",
+            PriceChange1h = null,
+            PriceChange7d = null
         };
     }
 }
