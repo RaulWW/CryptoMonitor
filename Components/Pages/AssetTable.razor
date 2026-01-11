@@ -9,7 +9,9 @@
                 <th @onclick='() => Sort("rank")' style="cursor:pointer">@Lang.T("Rank")</th>
                 <th @onclick='() => Sort("name")' style="cursor:pointer">@Lang.T("Asset")</th>
                 <th @onclick='() => Sort("price")' style="cursor:pointer">@Lang.T("Price")</th>
+                <th @onclick='() => Sort("1h")' style="cursor:pointer">@Lang.T("1h")</th>
                 <th @onclick='() => Sort("24h")' style="cursor:pointer">@Lang.T("24h")</th>
+                <th @onclick='() => Sort("7d")' style="cursor:pointer">@Lang.T("7d")</th>
                 <th @onclick='() => Sort("cap")' style="cursor:pointer">@Lang.T("MarketCap")</th>
             </tr>
         </thead>
@@ -30,7 +32,18 @@
                             </div>
                         </td>
                         <td class="fw-bold">@asset.CurrentPrice.ToString("C2")</td>
-                        <td class="@GetPriceClass(asset.PriceChange24h)">@asset.PriceChange24h.ToString("N2")%</td>
+                        <td class="@GetPriceClass(asset.PriceChange1h)">
+                            <div>@(asset.PriceChange1h?.ToString("N2") ?? "---")%</div>
+                            <div class="small opacity-75">@FormatAbsoluteChange(asset.CurrentPrice, asset.PriceChange1h)</div>
+                        </td>
+                        <td class="@GetPriceClass(asset.PriceChange24h)">
+                            <div>@asset.PriceChange24h.ToString("N2")%</div>
+                            <div class="small opacity-75">@FormatAbsoluteChange(asset.CurrentPrice, asset.PriceChange24h)</div>
+                        </td>
+                        <td class="@GetPriceClass(asset.PriceChange7d)">
+                            <div>@(asset.PriceChange7d?.ToString("N2") ?? "---")%</div>
+                            <div class="small opacity-75">@FormatAbsoluteChange(asset.CurrentPrice, asset.PriceChange7d)</div>
+                        </td>
                         <td class="text-secondary">@asset.MarketCap.ToString("N0")</td>
                     </tr>
                 }
@@ -44,7 +57,7 @@
 </div>
 
 @code {
-    [Parameter] public List<CryptoAsset> Assets { get; set; } = new();
+    [Parameter] public List<CryptoAsset> CryptoAssets { get; set; } = new();
     [Parameter] public string SearchTerm { get; set; } = "";
 
     private string sortColumn = "rank";
@@ -54,7 +67,7 @@
     {
         get
         {
-            var result = Assets.AsEnumerable();
+            var result = CryptoAssets.AsEnumerable();
             if (!string.IsNullOrWhiteSpace(SearchTerm))
             {
                 result = result.Where(a => a.Name.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase) || 
@@ -72,7 +85,9 @@
             "rank" => query.OrderBy(a => a.MarketCapRank),
             "name" => query.OrderBy(a => a.Name),
             "price" => query.OrderBy(a => a.CurrentPrice),
+            "1h" => query.OrderBy(a => a.PriceChange1h),
             "24h" => query.OrderBy(a => a.PriceChange24h),
+            "7d" => query.OrderBy(a => a.PriceChange7d),
             "cap" => query.OrderBy(a => a.MarketCap),
             _ => query.OrderBy(a => a.MarketCapRank)
         };
@@ -92,4 +107,17 @@
     }
 
     private string GetPriceClass(double? change) => (change ?? 0) >= 0 ? "price-up" : "price-down";
+
+    private string FormatAbsoluteChange(decimal currentPrice, double? percentageChange)
+    {
+        if (percentageChange == null) return "";
+        
+        // Calculation: OldPrice = CurrentPrice / (1 + (percentage / 100))
+        // Change = CurrentPrice - OldPrice
+        decimal pc = (decimal)(percentageChange.Value / 100.0);
+        decimal oldPrice = currentPrice / (1 + pc);
+        decimal diff = currentPrice - oldPrice;
+        
+        return (diff >= 0 ? "+" : "") + diff.ToString("C2");
+    }
 }

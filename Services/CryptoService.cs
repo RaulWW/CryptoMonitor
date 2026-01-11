@@ -13,38 +13,45 @@ public class CryptoService : ICryptoService
 {
     private readonly HttpClient _httpClient;
 
-    public CryptoService(HttpClient httpClient)
+    public CryptoService(HttpClient httpClient, IConfiguration configuration)
     {
         _httpClient = httpClient;
         _httpClient.DefaultRequestHeaders.Add("User-Agent", "CryptoMonitorApp");
+        
+        var apiKey = configuration["CoinGecko:ApiKey"];
+        if (!string.IsNullOrEmpty(apiKey))
+        {
+            _httpClient.DefaultRequestHeaders.Add("x-cg-demo-api-key", apiKey);
+        }
     }
 
     public async Task<List<CryptoAsset>> GetTop100AssetsAsync()
     {
-        try
-        {
-            Console.WriteLine("[INFO] Fetching assets from CoinCap...");
-            var result = await TryFetchFromCoinCap();
-            if (result.Any()) return result;
-            
-            Console.WriteLine("[WARN] CoinCap returned empty list. Trying CoinGecko...");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[ERROR] CoinCap failed: {ex.Message}");
-        }
-
+        // Prioritize CoinGecko as per user request and documentation
         try
         {
             Console.WriteLine("[INFO] Fetching assets from CoinGecko...");
             var result = await TryFetchFromCoinGecko();
             if (result.Any()) return result;
 
-            Console.WriteLine("[WARN] CoinGecko returned empty list. Trying CoinPaprika...");
+            Console.WriteLine("[WARN] CoinGecko returned empty list. Trying CoinCap...");
         }
         catch (Exception ex)
         {
             Console.WriteLine($"[ERROR] CoinGecko failed: {ex.Message}");
+        }
+
+        try
+        {
+            Console.WriteLine("[INFO] Fetching assets from CoinCap...");
+            var result = await TryFetchFromCoinCap();
+            if (result.Any()) return result;
+            
+            Console.WriteLine("[WARN] CoinCap returned empty list. Trying CoinPaprika...");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[ERROR] CoinCap failed: {ex.Message}");
         }
 
         try
@@ -78,8 +85,8 @@ public class CryptoService : ICryptoService
 
     private async Task<List<CryptoAsset>> TryFetchFromCoinGecko()
     {
-        // Fallback to CoinGecko Public API
-        var url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false";
+        // Fallback to CoinGecko Public API with extra timeframes
+        var url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=1h,24h,7d";
         var response = await _httpClient.GetAsync(url);
 
         if (!response.IsSuccessStatusCode)
