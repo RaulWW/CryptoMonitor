@@ -1,0 +1,33 @@
+@using CryptoMonitor.Models
+@using CryptoMonitor.Services
+@inject ILanguageService Lang
+
+@if (Insight != null)
+{
+    <section class="glass-card mb-5">
+        <div class="row">
+            <div class="col-md-8">
+                <h3 class="text-accent mb-3"><i class="bi bi-globe"></i> @Lang.T("MacroTitle")</h3>
+                <p>@Insight.GlobalContext</p>
+                <div class="mt-3">
+                    <span class="badge bg-primary me-2">@Lang.T("DailyOutlook")</span>
+                    <small>@Insight.DailyOutlook</small>
+                </div>
+            </div>
+            <div class="col-md-4 border-start border-secondary ps-4">
+                <h4 class="mb-3">@Lang.T("KeyIndicators")</h4>
+                @foreach (var metric in Insight.KeyMetrics)
+                {
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-secondary">@metric.Key</span>
+                        <span class="fw-bold">@metric.Value</span>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+}
+
+@code {
+    [Parameter] public MacroInsight? Insight { get; set; }
+}

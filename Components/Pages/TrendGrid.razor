@@ -1,0 +1,33 @@
+@using CryptoMonitor.Models
+@using CryptoMonitor.Services
+@inject ILanguageService Lang
+
+<section class="trends-row row mb-5">
+    @if (Trends != null)
+    {
+        @foreach (var trend in Trends)
+        {
+            <div class="col-md-4 mb-3">
+                <div class="glass-card h-100">
+                    <div class="d-flex justify-content-between">
+                        <h5 class="fw-bold">@trend.Title</h5>
+                        <span class="badge @(trend.Impact == Lang.T("ImpactPositive") ? "bg-success" : trend.Impact == Lang.T("ImpactNegative") ? "bg-danger" : "bg-secondary")">
+                            @trend.Impact
+                        </span>
+                    </div>
+                    <p class="small text-secondary mt-2">@trend.Summary</p>
+                    <div class="mt-2">
+                        @foreach (var tag in trend.Tags)
+                        {
+                            <span class="badge border border-info text-info me-1" style="font-size: 0.7rem;">#@tag</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</section>
+
+@code {
+    [Parameter] public List<MarketTrend> Trends { get; set; } = new();
+}
