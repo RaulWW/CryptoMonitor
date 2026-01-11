@@ -1,18 +1,25 @@
 @using CryptoMonitor.Models
 @using CryptoMonitor.Services
+@using System.Globalization
 @inject ILanguageService Lang
 
-<div class="table-responsive">
-    <table class="glass-list">
+<div class="table-responsive" style="position: relative;">
+    @if (IsLoading)
+    {
+        <div class="table-loading-overlay">
+            <div class="spinner-border text-info" role="status"></div>
+        </div>
+    }
+    <table class="glass-list @(IsLoading ? "opacity-50" : "")">
         <thead>
             <tr>
-                <th @onclick='() => Sort("rank")' style="cursor:pointer">@Lang.T("Rank")</th>
-                <th @onclick='() => Sort("name")' style="cursor:pointer">@Lang.T("Asset")</th>
-                <th @onclick='() => Sort("price")' style="cursor:pointer">@Lang.T("Price")</th>
-                <th @onclick='() => Sort("1h")' style="cursor:pointer">@Lang.T("1h")</th>
-                <th @onclick='() => Sort("24h")' style="cursor:pointer">@Lang.T("24h")</th>
-                <th @onclick='() => Sort("7d")' style="cursor:pointer">@Lang.T("7d")</th>
-                <th @onclick='() => Sort("cap")' style="cursor:pointer">@Lang.T("MarketCap")</th>
+                <th @onclick='() => Sort("rank")'>@Lang.T("Rank") @GetSortIcon("rank")</th>
+                <th @onclick='() => Sort("name")'>@Lang.T("Asset") @GetSortIcon("name")</th>
+                <th @onclick='() => Sort("price")'>@Lang.T("Price") @GetSortIcon("price")</th>
+                <th @onclick='() => Sort("1h")'>@Lang.T("1h") @GetSortIcon("1h")</th>
+                <th @onclick='() => Sort("24h")'>@Lang.T("24h") @GetSortIcon("24h")</th>
+                <th @onclick='() => Sort("7d")'>@Lang.T("7d") @GetSortIcon("7d")</th>
+                <th @onclick='() => Sort("cap")'>@Lang.T("MarketCap") @GetSortIcon("cap")</th>
             </tr>
         </thead>
         <tbody>
@@ -31,7 +38,7 @@
                                 </div>
                             </div>
                         </td>
-                        <td class="fw-bold">@asset.CurrentPrice.ToString("C2")</td>
+                        <td class="fw-bold">@asset.CurrentPrice.ToString("C2", CultureInfo.CreateSpecificCulture("en-US"))</td>
                         <td class="@GetPriceClass(asset.PriceChange1h)">
                             <div>@(asset.PriceChange1h?.ToString("N2") ?? "---")%</div>
                             <div class="small opacity-75">@FormatAbsoluteChange(asset.CurrentPrice, asset.PriceChange1h)</div>
@@ -44,7 +51,7 @@
                             <div>@(asset.PriceChange7d?.ToString("N2") ?? "---")%</div>
                             <div class="small opacity-75">@FormatAbsoluteChange(asset.CurrentPrice, asset.PriceChange7d)</div>
                         </td>
-                        <td class="text-secondary">@asset.MarketCap.ToString("N0")</td>
+                        <td class="text-secondary">@asset.MarketCap.ToString("N0", CultureInfo.CreateSpecificCulture("en-US"))</td>
                     </tr>
                 }
                 catch (Exception ex)
@@ -59,6 +66,7 @@
 @code {
     [Parameter] public List<CryptoAsset> CryptoAssets { get; set; } = new();
     [Parameter] public string SearchTerm { get; set; } = "";
+    [Parameter] public bool IsLoading { get; set; } = false;
 
     private string sortColumn = "rank";
     private bool sortAscending = true;
@@ -74,23 +82,40 @@
                                            a.Symbol.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase));
             }
 
-            return sortAscending ? ApplySort(result) : ApplySort(result).Reverse();
+            return ApplySort(result);
         }
     }
 
     private IEnumerable<CryptoAsset> ApplySort(IEnumerable<CryptoAsset> query)
     {
-        return sortColumn switch
+        if (sortAscending)
         {
-            "rank" => query.OrderBy(a => a.MarketCapRank),
-            "name" => query.OrderBy(a => a.Name),
-            "price" => query.OrderBy(a => a.CurrentPrice),
-            "1h" => query.OrderBy(a => a.PriceChange1h),
-            "24h" => query.OrderBy(a => a.PriceChange24h),
-            "7d" => query.OrderBy(a => a.PriceChange7d),
-            "cap" => query.OrderBy(a => a.MarketCap),
-            _ => query.OrderBy(a => a.MarketCapRank)
-        };
+            return sortColumn switch
+            {
+                "rank" => query.OrderBy(a => a.MarketCapRank),
+                "name" => query.OrderBy(a => a.Name),
+                "price" => query.OrderBy(a => a.CurrentPrice),
+                "1h" => query.OrderBy(a => a.PriceChange1h ?? -999999),
+                "24h" => query.OrderBy(a => a.PriceChange24h),
+                "7d" => query.OrderBy(a => a.PriceChange7d ?? -999999),
+                "cap" => query.OrderBy(a => a.MarketCap),
+                _ => query.OrderBy(a => a.MarketCapRank)
+            };
+        }
+        else
+        {
+            return sortColumn switch
+            {
+                "rank" => query.OrderByDescending(a => a.MarketCapRank),
+                "name" => query.OrderByDescending(a => a.Name),
+                "price" => query.OrderByDescending(a => a.CurrentPrice),
+                "1h" => query.OrderByDescending(a => a.PriceChange1h ?? -999999),
+                "24h" => query.OrderByDescending(a => a.PriceChange24h),
+                "7d" => query.OrderByDescending(a => a.PriceChange7d ?? -999999),
+                "cap" => query.OrderByDescending(a => a.MarketCap),
+                _ => query.OrderByDescending(a => a.MarketCapRank)
+            };
+        }
     }
 
     private void Sort(string column)
@@ -108,9 +133,15 @@
 
     private string GetPriceClass(double? change) => (change ?? 0) >= 0 ? "price-up" : "price-down";
 
+    private string GetSortIcon(string column)
+    {
+        if (sortColumn != column) return "";
+        return sortAscending ? "▲" : "▼";
+    }
+
     private string FormatAbsoluteChange(decimal currentPrice, double? percentageChange)
     {
-        if (percentageChange == null) return "";
+        if (percentageChange == null || Math.Abs(percentageChange.Value + 100.0) < 0.0001) return "";
         
         // Calculation: OldPrice = CurrentPrice / (1 + (percentage / 100))
         // Change = CurrentPrice - OldPrice
@@ -118,6 +149,6 @@
         decimal oldPrice = currentPrice / (1 + pc);
         decimal diff = currentPrice - oldPrice;
         
-        return (diff >= 0 ? "+" : "") + diff.ToString("C2");
+        return (diff >= 0 ? "+" : "") + diff.ToString("C2", CultureInfo.CreateSpecificCulture("en-US"));
     }
 }

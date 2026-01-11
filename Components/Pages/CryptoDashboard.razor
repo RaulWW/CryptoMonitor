@@ -39,14 +39,7 @@
         </button>
     </div>
 
-    @if (isLoading)
-    {
-        <div class="text-center py-5">
-            <div class="spinner-border text-info" role="status"></div>
-            <p class="mt-3">@Lang.T("Syncing")</p>
-        </div>
-    }
-    else if (!assets.Any())
+    @if (!isLoading && !assets.Any())
     {
         <div class="text-center py-5 glass-card">
             <i class="bi bi-exclamation-triangle text-warning display-4"></i>
@@ -59,7 +52,7 @@
     }
     else
     {
-        <AssetTable CryptoAssets="@assets" SearchTerm="@searchTerm" />
+        <AssetTable CryptoAssets="@assets" SearchTerm="@searchTerm" IsLoading="@isLoading" />
     }
 </div>
 

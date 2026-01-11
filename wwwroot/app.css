@@ -45,6 +45,11 @@ body {
   text-transform: uppercase;
   letter-spacing: 1px;
   border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.glass-list th:hover {
+  color: var(--accent-color);
 }
 
 .glass-list tr {
@@ -177,4 +182,23 @@ h1 {
 .subtitle {
   color: var(--text-secondary);
   margin-bottom: 40px;
+}
+
+.table-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 16px;
+}
+
+.opacity-50 {
+  opacity: 0.5;
+  pointer-events: none;
 }
