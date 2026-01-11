@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using System.Text.Json.Serialization;
 using CryptoMonitor.Models;
 
 namespace CryptoMonitor.Services;
@@ -111,20 +112,4 @@ public class CryptoService : ICryptoService
         var result = await response.Content.ReadFromJsonAsync<List<CoinPaprikaTicker>>();
         return result?.Select(CryptoAsset.FromCoinPaprika).ToList() ?? new List<CryptoAsset>();
     }
-}
-
-public class CoinPaprikaTicker
-{
-    [JsonPropertyName("id")] public string Id { get; set; } = "";
-    [JsonPropertyName("name")] public string Name { get; set; } = "";
-    [JsonPropertyName("symbol")] public string Symbol { get; set; } = "";
-    [JsonPropertyName("rank")] public int Rank { get; set; }
-    [JsonPropertyName("quotes")] public Dictionary<string, CoinPaprikaQuote> Quotes { get; set; } = new();
-}
-
-public class CoinPaprikaQuote
-{
-    [JsonPropertyName("price")] public decimal Price { get; set; }
-    [JsonPropertyName("market_cap")] public long MarketCap { get; set; }
-    [JsonPropertyName("percent_change_24h")] public double PercentChange24h { get; set; }
 }

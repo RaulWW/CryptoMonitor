@@ -104,3 +104,19 @@ public class CoinCapResponse
     [JsonPropertyName("data")]
     public List<CoinCapAsset> Data { get; set; } = new();
 }
+
+public class CoinPaprikaTicker
+{
+    [JsonPropertyName("id")] public string Id { get; set; } = "";
+    [JsonPropertyName("name")] public string Name { get; set; } = "";
+    [JsonPropertyName("symbol")] public string Symbol { get; set; } = "";
+    [JsonPropertyName("rank")] public int Rank { get; set; }
+    [JsonPropertyName("quotes")] public Dictionary<string, CoinPaprikaQuote> Quotes { get; set; } = new();
+}
+
+public class CoinPaprikaQuote
+{
+    [JsonPropertyName("price")] public decimal Price { get; set; }
+    [JsonPropertyName("market_cap")] public long MarketCap { get; set; }
+    [JsonPropertyName("percent_change_24h")] public double PercentChange24h { get; set; }
+}
